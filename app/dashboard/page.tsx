@@ -2,6 +2,8 @@
 import { TypographyH2, TypographyP } from "@/components/ui/typography";
 import { redirect } from "next/navigation";
 import { useAuthContext } from "../(context)/auth-context";
+// this is from the calendar file! not quite sure how to use it here
+import CourseBlock from "./calendar";
 
 export default function Dashboard() {
   const { user } = useAuthContext();

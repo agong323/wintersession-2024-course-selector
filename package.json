@@ -29,7 +29,7 @@
     "@t3-oss/env-nextjs": "^0.7.1",
     "class-variance-authority": "^0.7.0",
     "client-only": "^0.0.1",
-    "clsx": "^2.0.0",
+    "clsx": "^2.1.0",
     "encoding": "^0.1.13",
     "firebase": "^10.7.1",
     "lucide-react": "^0.298.0",
@@ -39,8 +39,8 @@
     "react-dom": "18.2.0",
     "react-hook-form": "^7.45.4",
     "server-only": "^0.0.1",
-    "tailwind-merge": "^2.1.0",
-    "tailwindcss-animate": "^1.0.6",
+    "tailwind-merge": "^2.2.0",
+    "tailwindcss-animate": "^1.0.7",
     "zod": "^3.22.1"
   },
   "devDependencies": {

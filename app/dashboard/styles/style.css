@@ -138,3 +138,58 @@
   .current {
     font-weight: bold;
   }
+  
+  .dashboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .days-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+  .day-header {
+    font-weight: bold;
+  }
+  
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(48, 1fr); /* 24 hours * 2 rows per hour */
+    gap: 2px;
+    width: 100%;
+  }
+  
+  .time-slot {
+    grid-column: 1 / -1;
+    border-top: 1px solid #ccc;
+    padding: 2px 5px;
+    font-size: 0.8em;
+    color: #666;
+  }
+  
+  .course-block {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #4caf50;
+    color: white;
+    padding: 5px;
+    border-radius: 4px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    overflow: hidden;
+  }
+  
+  .calendar-grid > * {
+    min-height: 20px;
+  }
+  
+  .current-day {
+    background-color: #2196f3;
+  }

@@ -25,6 +25,17 @@ import type { Course } from "@/lib/firebase/schema";
 
 import "./styles/style.css";
 
+function getGridColumn(day) {
+    const mapping = { Mon: 3, Tue: 4, Wed: 5, Thu: 6, Fri: 7, Sat: 8, Sun: 9 };
+    return mapping[day] || null;
+  }
+  
+  function getGridRow(time) {
+    const [hour, minute] = time.split(":");
+    const row = parseInt(hour) * 2 + (minute === "00" ? 1 : 2);
+    return row; // We're assuming grid starts at 1:00 AM and each hour is divided into two rows.
+  }
+
 export default function Dashboard() {
   const { user } = useAuthContext();
 
@@ -61,9 +72,9 @@ export default function Dashboard() {
   ]
 
   // to lessen the brute force-ness
-  const nums: number[] = [];
-  for(let i = 0; i < 24; i ++){
-    nums.push(i);
+  const hours = [];
+  for (let i = 0; i < 24; i++) {
+    hours.push(i);
   }
 
   return (
@@ -118,65 +129,41 @@ export default function Dashboard() {
     <div>
         This is a Course card.
     </div>
-      <div className="container">
-        <div className="days">
-          <div className="filler"></div>
-          <div className="filler"></div>
-          <div className="day">Mon</div>
-          <div className="day">Tue</div>
-          <div className="day">Wed</div>
-          <div className="day">Thu</div>
-          <div className="day current">Fri</div>
-          <div className="day">Sat</div>
-          <div className="day">Sun</div>
-        </div>
-        <div className="content">
-          {nums.map((i) => <div key={i} className="time" style={{ gridRow: i }} >{i}:00</div>)}
-          <div className="filler-col"></div>
-          <div className="col" style={{ gridColumn: 3}}></div>
-          <div className="col" style={{ gridColumn: 4}}></div>
-          <div className="col" style={{ gridColumn: 5}}></div>
-          <div className="col" style={{ gridColumn: 6}}></div>
-          <div className="col" style={{ gridColumn: 7}}></div>
-          <div className="col weekend" style={{ gridColumn: 8}}></div>
-          <div className="col weekend" style={{ gridColumn: 9}}></div>
-          <div className="row" style={{ gridRow: 1}}></div>
-          <div className="row" style={{ gridRow: 2}}></div>
-          <div className="row" style={{ gridRow: 3}}></div>
-          <div className="row" style={{ gridRow: 4}}></div>
-          <div className="row" style={{ gridRow: 5}}></div>
-          <div className="row" style={{ gridRow: 6}}></div>
-          <div className="row" style={{ gridRow: 7}}></div>
-          <div className="row" style={{ gridRow: 8}}></div>
-          <div className="row" style={{ gridRow: 9}}></div>
-          <div className="row" style={{ gridRow: 10}}></div>
-          <div className="row" style={{ gridRow: 11}}></div>
-          <div className="row" style={{ gridRow: 12}}></div>
-          <div className="row" style={{ gridRow: 13}}></div>
-          <div className="row" style={{ gridRow: 14}}></div>
-          <div className="row" style={{ gridRow: 15}}></div>
-          <div className="row" style={{ gridRow: 16}}></div>
-          <div className="row" style={{ gridRow: 17}}></div>
-          <div className="row" style={{ gridRow: 18}}></div>
-          <div className="row" style={{ gridRow: 19}}></div>
-          <div className="row" style={{ gridRow: 20}}></div>
-          <div className="row" style={{ gridRow: 21}}></div>
-          <div className="row" style={{ gridRow: 22}}></div>
-          <div className="row" style={{ gridRow: 23}}></div>
-          {/* <div className="event event1 calendar1">Event 1</div>
-          <div className="event event2 calendar2">Event 2</div>
-          <div className="event event3 calendar2">Event 3</div>
-          <div className="event event4 calendar1">Event 4</div> */}
-          <div className="current-time"><div className="circle"></div></div>
-        </div>
-      </div>
-      <div>
-        {/*
-        {courses.map((course) => <CourseBlock key={course.id} {...course} />)}
-        the format of this looks very funky (on top of the calendar on the upper left)--fix!
-          */}
-      </div>
-    </>
+    <div className="dashboard-container">
+      <div className="days-header">
+        {/* Headers for days */}
+        <div className="day-header">Mon</div>
+        <div className="day-header">Tue</div>
+        <div className="day-header">Wed</div>
+        <div className="day-header">Thu</div>
+        <div className="day-header">Fri</div>
+        <div className="day-header">Sat</div>
+        <div className="day-header">Sun</div>
+      </div>
+      <div className="calendar-grid">
+        {/* Time slots */}
+        {hours.map((hour) => (
+          <div key={hour} className="time-slot">
+            {hour}:00
+          </div>
+        ))}
+        {/* Course Blocks */}
+        {courses.map((course) =>
+          course.day.split("/").map((day) => (
+            <div
+              key={`${course.id}-${day}`}
+              className="course-block"
+              style={{
+                gridColumn: getGridColumn(day),
+                gridRowStart: getGridRow(course.startTime),
+                gridRowEnd: getGridRow(course.endTime),
+              }}>
+              {course.name}
+            </div>
+          )),
+        )}
+      </div>
+    </div>
+  </>
   );
-
 }

@@ -1,10 +1,10 @@
 "use client";
-import { TypographyH2, TypographyP } from "@/components/ui/typography";
+import { TypographyP } from "@/components/ui/typography";
 import { redirect } from "next/navigation";
 import { useAuthContext } from "../(context)/auth-context";
 // this is from the calendar file! not quite sure how to use it here
 import CourseBlock from "./calendar";
-import { Course } from "./calendar";
+import type { Course } from "./calendar";
 // import { Calendar } from "./calendar";
 
 import React from "react";
@@ -28,6 +28,11 @@ export default function Dashboard() {
     { id: 1, eventName: "T4SG", day: "M/T/W/Th/F", startTime: "12:00 PM", endTime: "2:00 PM", description: "This is the T4SG Wintersession 2024."}
   ]
 
+  const nums: number[] = [];
+  for(let i = 0; i < 24; i ++){
+    nums.push(i);
+  }
+
   return (
     <>
       <div className="container">
@@ -43,29 +48,7 @@ export default function Dashboard() {
           <div className="day">Sun</div>
         </div>
         <div className="content">
-          <div className="time" style={{ gridRow: 1 }}>01:00</div>
-          <div className="time" style={{ gridRow: 2 }}>02:00</div>
-          <div className="time" style={{ gridRow: 3 }}>03:00</div>
-          <div className="time" style={{ gridRow: 4 }}>04:00</div>
-          <div className="time" style={{ gridRow: 5 }}>05:00</div>
-          <div className="time" style={{ gridRow: 6 }}>06:00</div>
-          <div className="time" style={{ gridRow: 7 }}>07:00</div>
-          <div className="time" style={{ gridRow: 8 }}>08:00</div>
-          <div className="time" style={{ gridRow: 9 }}>09:00</div>
-          <div className="time" style={{ gridRow: 10 }}>10:00</div>
-          <div className="time" style={{ gridRow: 11 }}>11:00</div>
-          <div className="time" style={{ gridRow: 12 }}>12:00</div>
-          <div className="time" style={{ gridRow: 13 }}>13:00</div>
-          <div className="time" style={{ gridRow: 14 }}>14:00</div>
-          <div className="time" style={{ gridRow: 15 }}>15:00</div>
-          <div className="time" style={{ gridRow: 16 }}>16:00</div>
-          <div className="time" style={{ gridRow: 17 }}>17:00</div>
-          <div className="time" style={{ gridRow: 18 }}>18:00</div>
-          <div className="time" style={{ gridRow: 19 }}>19:00</div>
-          <div className="time" style={{ gridRow: 20 }}>20:00</div>
-          <div className="time" style={{ gridRow: 21 }}>21:00</div>
-          <div className="time" style={{ gridRow: 22 }}>22:00</div>
-          <div className="time" style={{ gridRow: 23 }}>23:00</div>
+          {nums.map((i) => <div key={i} className="time" style={{ gridRow: i }} >{i}:00</div>)}
           <div className="filler-col"></div>
           <div className="col" style={{ gridColumn: 3}}></div>
           <div className="col" style={{ gridColumn: 4}}></div>
@@ -104,9 +87,7 @@ export default function Dashboard() {
           <div className="current-time"><div className="circle"></div></div>
         </div>
       </div>
-      <div>
-        {courses.map((course) => <CourseBlock key={course.id} {...course} />)}
-      </div>
+
     </>
   );
 }

@@ -1,6 +1,21 @@
 // typescript interface for calendar course props
 // sadly event seems to be a pre-exisiting thing, so i changed the name to course (even though the calendar also has other activities)
-interface Course {
+// for showing calendar
+import React from "react";
+import "./styles/style.css";
+
+// const Calendar: React.FC = () => {
+//     return (
+//         <div className={"container"}>
+//             <h1>Hello Next.js</h1>
+//             <p>This is a TypeScript file with embedded HTML and CSS.</p>
+//         </div>
+//     );
+// }
+// export { Calendar };
+
+export interface Course {
+    id: number;
     eventName: string;
     eventSubName?: string; 
     day: string;
@@ -10,12 +25,6 @@ interface Course {
     instructor?: string;
     description?: string;
 }
-
-// example class array with one class and one club
-let courses: Course[]= [
-    { eventName: "CS161", eventSubName: "Operating Systems", day: "M/W", startTime: "2:15 PM", endTime: "3:30 PM", location: "SEC", instructor: "Eddie Kohler"},
-    { eventName: "T4SG", day: "M/T/W/Th/F", startTime: "12:00 PM", endTime: "2:00 PM", description: "This is the T4SG Wintersession 2024."}
-]
 
 // component for CourseBlock
 function CourseBlock ({ eventName, eventSubName, day, startTime, endTime, location, instructor, description }: Course) {

@@ -10,7 +10,12 @@ export interface Profile {
 export interface Course {
   id: string;
   name: string;
-  professor: string;
-  description: string;
+  subname?: string;
+  day: string;
+  startTime: string;
+  endTime: string;
+  location?:string;
+  instructor?: string;
+  description?: string;
   students: string[]; //ID of students
 }

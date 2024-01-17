@@ -28,15 +28,6 @@ import "./styles/style.css";
 export default function Dashboard() {
   const { user } = useAuthContext();
 
-  if (!user) {
-    // this is a protected route - only users who are signed in can view this route
-    redirect("/");
-  }
-
-  if (user === "loading") {
-    return <TypographyP>Loading...</TypographyP>;
-  }
-
   const [course, setCourse] = useState({
     eventName: "",
     eventSubName: "",
@@ -48,6 +39,15 @@ export default function Dashboard() {
     description: ""
   });
   const [open, setOpen] = useState<boolean>(false);
+
+  if (!user) {
+    // this is a protected route - only users who are signed in can view this route
+    redirect("/");
+  }
+
+  if (user === "loading") {
+    return <TypographyP>Loading...</TypographyP>;
+  }
 
   function handleSubmit() {
     alert(`The new course added is ${course.eventName}: ${course.eventSubName}, which is on ${course.day} from ${course.startTime}-${course.endTime} at ${course.location}. The course is taught by ${course.instructor} and the the course description is:\n${course.description}`);

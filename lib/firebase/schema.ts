@@ -15,7 +15,7 @@ export interface Course {
   startTime: string;
   endTime: string;
   location?:string;
-  professor?: string;
+  instructor?: string;
   description?: string;
   students: string[]; //ID of students
 }

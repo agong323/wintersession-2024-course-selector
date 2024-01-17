@@ -3,24 +3,14 @@
 // for showing calendar
 import React from "react";
 import "./styles/style.css";
+import type { Course } from "@/lib/firebase/schema";
 
-export interface Course {
-    id: number;
-    eventName: string;
-    eventSubName?: string; 
-    day: string;
-    startTime: string;
-    endTime: string;
-    location?: string; 
-    instructor?: string;
-    description?: string;
-}
 
 // component for CourseBlock
-function CourseBlock ({ eventName, eventSubName, day, startTime, endTime, location, instructor, description }: Course) {
+function CourseBlock ({ name, subname, day, startTime, endTime, location, instructor, description }: Course) {
     return (
         <div>
-            <h2>{eventName}{eventSubName && <h2>{eventSubName}</h2>}</h2>
+            <h2>{name}{subname && <h2>{subname}</h2>}</h2>
             <p><strong>Days:</strong> {day}</p>
             <p><strong>Time:</strong> {startTime} - {endTime}</p>
             {location && <p><strong>Location:</strong> {location}</p>}

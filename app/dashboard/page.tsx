@@ -20,7 +20,7 @@ interface UserProfileProps {
 
 // this is from the calendar file! not quite sure how to use it here
 import CourseBlock from "./calendar";
-import type { Course } from "./calendar";
+import type { Course } from "@/lib/firebase/schema";
 // import { Calendar } from "./calendar";
 
 import "./styles/style.css";
@@ -56,11 +56,11 @@ export default function Dashboard() {
 
   // example class array with one class and one club
   let courses: Course[]= [
-    { id: 0, eventName: "CS161", eventSubName: "Operating Systems", day: "M/W", startTime: "2:15 PM", endTime: "3:30 PM", location: "SEC", instructor: "Eddie Kohler"},
-    { id: 1, eventName: "T4SG", day: "M/T/W/Th/F", startTime: "12:00 PM", endTime: "2:00 PM", description: "This is the T4SG Wintersession 2024."}
+    { id: "0", eventName: "CS161", eventSubName: "Operating Systems", day: "M/W", startTime: "2:15 PM", endTime: "3:30 PM", location: "SEC", instructor: "Eddie Kohler"},
+    { id: "1", eventName: "T4SG", day: "M/T/W/Th/F", startTime: "12:00 PM", endTime: "2:00 PM", description: "This is the T4SG Wintersession 2024."}
   ]
 
-  // to lessen the brute force-ness 
+  // to lessen the brute force-ness
   const nums: number[] = [];
   for(let i = 0; i < 24; i ++){
     nums.push(i);
@@ -68,10 +68,6 @@ export default function Dashboard() {
 
   return (
     <>
-      <TypographyH2>Dashboard</TypographyH2>
-      <TypographyP>This is a protected route accessible only to signed-in users.</TypographyP>
-      {user.email && <TypographyP>{`Your email is ${user.email}`}</TypographyP>}
-
       <div className="flex flex-col items-center">
       <Button onClick={() => setOpen(true)} variant="outlined">
         Add Course
@@ -175,9 +171,9 @@ export default function Dashboard() {
         </div>
       </div>
       <div>
-        {/* 
-        {courses.map((course) => <CourseBlock key={course.id} {...course} />)} 
-        the format of this looks very funky (on top of the calendar on the upper left)--fix! 
+        {/*
+        {courses.map((course) => <CourseBlock key={course.id} {...course} />)}
+        the format of this looks very funky (on top of the calendar on the upper left)--fix!
           */}
       </div>
     </>

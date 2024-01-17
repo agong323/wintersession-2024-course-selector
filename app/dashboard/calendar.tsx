@@ -4,16 +4,6 @@
 import React from "react";
 import "./styles/style.css";
 
-// const Calendar: React.FC = () => {
-//     return (
-//         <div className={"container"}>
-//             <h1>Hello Next.js</h1>
-//             <p>This is a TypeScript file with embedded HTML and CSS.</p>
-//         </div>
-//     );
-// }
-// export { Calendar };
-
 export interface Course {
     id: number;
     eventName: string;

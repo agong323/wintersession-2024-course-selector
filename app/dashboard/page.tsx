@@ -28,6 +28,7 @@ export default function Dashboard() {
     { id: 1, eventName: "T4SG", day: "M/T/W/Th/F", startTime: "12:00 PM", endTime: "2:00 PM", description: "This is the T4SG Wintersession 2024."}
   ]
 
+  // to lessen the brute force-ness 
   const nums: number[] = [];
   for(let i = 0; i < 24; i ++){
     nums.push(i);
@@ -87,7 +88,12 @@ export default function Dashboard() {
           <div className="current-time"><div className="circle"></div></div>
         </div>
       </div>
-
+      <div>
+        {/* 
+        {courses.map((course) => <CourseBlock key={course.id} {...course} />)} 
+        the format of this looks very funky (on top of the calendar on the upper left)--fix! 
+          */}
+      </div>
     </>
   );
 }

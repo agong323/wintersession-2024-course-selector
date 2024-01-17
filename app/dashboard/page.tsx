@@ -26,14 +26,14 @@ import type { Course } from "@/lib/firebase/schema";
 import "./styles/style.css";
 
 function getGridColumn(day) {
-    const mapping = { Mon: 3, Tue: 4, Wed: 5, Thu: 6, Fri: 7, Sat: 8, Sun: 9 };
-    return mapping[day] || null;
+    const mapping = { Mon: 3, Tue: 4, Wed: 5, Thu: 6, Fri: 7, Sat: 8, Sun: 9 };
+    return mapping[day] || null;
   }
   
   function getGridRow(time) {
-    const [hour, minute] = time.split(":");
-    const row = parseInt(hour) * 2 + (minute === "00" ? 1 : 2);
-    return row; // We're assuming grid starts at 1:00 AM and each hour is divided into two rows.
+    const [hour, minute] = time.split(":");
+    const row = parseInt(hour) * 2 + (minute === "00" ? 1 : 2);
+    return row; // We're assuming grid starts at 1:00 AM and each hour is divided into two rows.
   }
 
 export default function Dashboard() {
@@ -66,15 +66,16 @@ export default function Dashboard() {
   }
 
   // example class array with one class and one club
+  // figure out students situation 
   let courses: Course[]= [
-    { id: "0", eventName: "CS161", eventSubName: "Operating Systems", day: "M/W", startTime: "2:15 PM", endTime: "3:30 PM", location: "SEC", instructor: "Eddie Kohler"},
-    { id: "1", eventName: "T4SG", day: "M/T/W/Th/F", startTime: "12:00 PM", endTime: "2:00 PM", description: "This is the T4SG Wintersession 2024."}
+    { id: "0", name: "CS161", subname: "Operating Systems", day: "M/W", startTime: "2:15 PM", endTime: "3:30 PM", location: "SEC", instructor: "Eddie Kohler"},
+    { id: "1", name: "T4SG", day: "M/T/W/Th/F", startTime: "12:00 PM", endTime: "2:00 PM", description: "This is the T4SG Wintersession 2024."}
   ]
 
   // to lessen the brute force-ness
   const hours = [];
-  for (let i = 0; i < 24; i++) {
-    hours.push(i);
+  for (let i = 0; i < 24; i++) {
+    hours.push(i);
   }
 
   return (
@@ -139,30 +140,30 @@ export default function Dashboard() {
         <div className="day-header">Fri</div>
         <div className="day-header">Sat</div>
         <div className="day-header">Sun</div>
-      </div>
-      <div className="calendar-grid">
+      </div>
+      <div className="calendar-grid">
         {/* Time slots */}
-        {hours.map((hour) => (
-          <div key={hour} className="time-slot">
-            {hour}:00
-          </div>
-        ))}
-        {/* Course Blocks */}
-        {courses.map((course) =>
-          course.day.split("/").map((day) => (
-            <div
-              key={`${course.id}-${day}`}
-              className="course-block"
-              style={{
-                gridColumn: getGridColumn(day),
-                gridRowStart: getGridRow(course.startTime),
-                gridRowEnd: getGridRow(course.endTime),
-              }}>
-              {course.name}
-            </div>
-          )),
-        )}
-      </div>
+        {hours.map((hour) => (
+          <div key={hour} className="time-slot">
+            {hour}:00
+          </div>
+        ))}
+        {/* Course Blocks */}
+        {courses.map((course) =>
+          course.day.split("/").map((day) => (
+            <div
+              key={`${course.id}-${day}`}
+              className="course-block"
+              style={{
+                gridColumn: getGridColumn(day),
+                gridRowStart: getGridRow(course.startTime),
+                gridRowEnd: getGridRow(course.endTime),
+              }}>
+              {course.name}
+            </div>
+          )),
+        )}
+      </div>
     </div>
   </>
   );

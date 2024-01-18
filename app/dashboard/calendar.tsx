@@ -20,3 +20,18 @@ function CourseBlock ({ name, subname, day, startTime, endTime, location, instru
     );
 }
 export default CourseBlock;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

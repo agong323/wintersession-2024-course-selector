@@ -10,7 +10,7 @@ import {
   TextField,
   Button,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface UserProfileProps {
   username: string;
@@ -23,7 +23,7 @@ import CourseBlock from "./calendar";
 import type { Course } from "@/lib/firebase/schema";
 import type { Profile } from "@/lib/firebase/schema";
 import { db } from "@/lib/firebase/firestore";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, query, onSnapshot } from "firebase/firestore";
 // import { Calendar } from "./calendar";
 
 import "./styles/style.css";
@@ -54,6 +54,39 @@ export default function Dashboard() {
   });
   const [open, setOpen] = useState<boolean>(false);
 
+  const [courses, setCourses] = useState<"loading" | "error" | Course[]>("loading");
+  useEffect(() => {
+    // What we're asking for
+    const q = query(collection(db, "courses"));
+    // Start listening to Firestore (set up a snapshot)
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        // Obtain array of documents from snapshot
+        const docs = snapshot.docs;
+        // Map the array of documents to an array of PetWithId objects
+        const petWithIdList = docs.map((doc) => ({ ...doc.data(), id: doc.id }) as Course);
+        // Update the pets state variable with the PetWithId[] array
+        setCourses(petWithIdList);
+      },
+      (error) => {
+        console.log(error.message);
+        setCourses("error");
+      },
+   );
+    // Stop listening when the component is unmounted
+    return unsubscribe;
+  }, []);
+  let coursesSection;
+  if (courses === "loading") {
+    coursesSection = <p>Loading courses...</p>;
+  } else if (courses === "error") {
+    coursesSection = <p>There was an error fetching courses</p>;
+  } else {
+    coursesSection = courses.map((crse) => <p key={crse.id}>{crse.name}</p>);
+  }
+
+
   if (!user) {
     // this is a protected route - only users who are signed in can view this route
     redirect("/");
@@ -66,7 +99,7 @@ export default function Dashboard() {
   function handleSubmit() {
     alert(`The new course added is ${course.eventName}: ${course.eventSubName}, which is on ${course.day} from ${course.startTime}-${course.endTime} at ${course.location}. The course is taught by ${course.instructor} and the the course description is:\n${course.description}`);
     // TODO: Add the new course to the firebase.
-    const collectionRef = collection(db, "courses");
+    const collectionRef = collection(db, "Course");
     // Specify the fields of the document to be added
     const fields = course;
 
@@ -76,11 +109,13 @@ export default function Dashboard() {
     setOpen(false);
   }
 
+  
+
   // example class array with one class and one club
-  let courses: Course[]= [
-    { id: "0", eventName: "CS161", eventSubName: "Operating Systems", day: "M/W", startTime: "2:15 PM", endTime: "3:30 PM", location: "SEC", instructor: "Eddie Kohler"},
-    { id: "1", eventName: "T4SG", day: "M/T/W/Th/F", startTime: "12:00 PM", endTime: "2:00 PM", description: "This is the T4SG Wintersession 2024."}
-  ]
+  // let courses: Course[]= [
+  //   { id: "0", eventName: "CS161", eventSubName: "Operating Systems", day: "M/W", startTime: "2:15 PM", endTime: "3:30 PM", location: "SEC", instructor: "Eddie Kohler"},
+  //   { id: "1", eventName: "T4SG", day: "M/T/W/Th/F", startTime: "12:00 PM", endTime: "2:00 PM", description: "This is the T4SG Wintersession 2024."}
+  // ]
 
   // to lessen the brute force-ness
   const hours = [];
@@ -140,7 +175,7 @@ export default function Dashboard() {
     
     {/* TODO: ADD ALL CURRENT COURSES */}
     <div>
-        This is a Course card.
+        { coursesSection }
     </div>
     <div className="dashboard-container">
       <div className="days-header">

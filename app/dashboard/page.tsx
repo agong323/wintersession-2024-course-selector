@@ -84,6 +84,7 @@ export default function Dashboard() {
     coursesSection = <p>There was an error fetching courses</p>;
   } else {
     coursesSection = courses.map((crse) => <p key={crse.id}>{crse.name}</p>);
+    
   }
 
 
@@ -99,7 +100,7 @@ export default function Dashboard() {
   function handleSubmit() {
     alert(`The new course added is ${course.eventName}: ${course.eventSubName}, which is on ${course.day} from ${course.startTime}-${course.endTime} at ${course.location}. The course is taught by ${course.instructor} and the the course description is:\n${course.description}`);
     // TODO: Add the new course to the firebase.
-    const collectionRef = collection(db, "Course");
+    const collectionRef = collection(db, "courses");
     // Specify the fields of the document to be added
     const fields = course;
 
@@ -175,7 +176,7 @@ export default function Dashboard() {
     
     {/* TODO: ADD ALL CURRENT COURSES */}
     <div>
-        { coursesSection }
+        {coursesSection}
     </div>
     <div className="dashboard-container">
       <div className="days-header">

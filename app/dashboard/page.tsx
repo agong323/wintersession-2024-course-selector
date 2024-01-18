@@ -65,9 +65,9 @@ export default function Dashboard() {
         // Obtain array of documents from snapshot
         const docs = snapshot.docs;
         // Map the array of documents to an array of PetWithId objects
-        const petWithIdList = docs.map((doc) => ({ ...doc.data(), id: doc.id }) as Course);
+        const courseWithId = docs.map((doc) => ({ ...doc.data(), id: doc.id }) as Course);
         // Update the pets state variable with the PetWithId[] array
-        setCourses(petWithIdList);
+        setCourses(courseWithId);
       },
       (error) => {
         console.log(error.message);
@@ -112,10 +112,10 @@ export default function Dashboard() {
   
 
   // example class array with one class and one club
-  // let courses: Course[]= [
-  //   { id: "0", eventName: "CS161", eventSubName: "Operating Systems", day: "M/W", startTime: "2:15 PM", endTime: "3:30 PM", location: "SEC", instructor: "Eddie Kohler"},
-  //   { id: "1", eventName: "T4SG", day: "M/T/W/Th/F", startTime: "12:00 PM", endTime: "2:00 PM", description: "This is the T4SG Wintersession 2024."}
-  // ]
+  let fixedCourses: Course[]= [
+    { id: "0", eventName: "CS161", eventSubName: "Operating Systems", day: "M/W", startTime: "2:15 PM", endTime: "3:30 PM", location: "SEC", instructor: "Eddie Kohler"},
+    { id: "1", eventName: "T4SG", day: "M/T/W/Th/F", startTime: "12:00 PM", endTime: "2:00 PM", description: "This is the T4SG Wintersession 2024."}
+  ]
 
   // to lessen the brute force-ness
   const hours = [];
@@ -196,7 +196,7 @@ export default function Dashboard() {
           </div>
         ))}
         {/* Course Blocks */}
-        {courses.map((course) =>
+        {fixedCourses.map((course) =>
           course.day.split("/").map((day) => (
             <div
               key={`${course.id}-${day}`}

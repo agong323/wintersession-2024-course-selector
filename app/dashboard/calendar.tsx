@@ -5,9 +5,11 @@ import React from "react";
 import "./styles/style.css";
 import type { Course } from "@/lib/firebase/schema";
 
+// above were the imports
 
 // component for CourseBlock
 function CourseBlock ({ name, subname, day, startTime, endTime, location, instructor, description }: Course) {
+    let test = 1;
     return (
         <div>
             <h2>{name}{subname && <h2>{subname}</h2>}</h2>
@@ -20,3 +22,5 @@ function CourseBlock ({ name, subname, day, startTime, endTime, location, instru
     );
 }
 export default CourseBlock;
+
+

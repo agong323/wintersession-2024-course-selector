@@ -10,7 +10,7 @@ import {
   TextField,
   Button,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface UserProfileProps {
   username: string;
@@ -20,7 +20,9 @@ interface UserProfileProps {
 
 import CourseBlock from "./calendar";
 import type { Course } from "@/lib/firebase/schema";
-// import { Calendar } from "./calendar";
+
+import { db } from "@/lib/firebase/firestore";
+import { addDoc, collection, query, onSnapshot } from "firebase/firestore";
 
 import "./styles/style.css";
 
@@ -60,7 +62,47 @@ function getGridRow(time: string): number {
   return row;
 }
 
-  
+export function addNewStudent(students: Course) {
+ // Specify the collection to which to add the document
+ // If nested, specify path e.g. “people/matthew/pets”
+ const collectionRef = collection(db, "students");
+
+ // Specify the fields of the document to be added
+ const fields = students;
+
+ /*
+ addDoc() adds a document with the specified fields
+ to the specified collection. addDoc() also returns a
+ reference to the added document after it completes,
+ but we don't need it, so we void the return.
+ */
+ void addDoc(collectionRef, fields);
+}
+
+export function addStudents() {
+  const [pets, setStudents] = useState<"loading" | "error" | Course[]>("loading");
+   useEffect(() => {
+    // What we're asking for
+    const q = query(collection(db, "pets"));
+    // Start listening to Firestore (set up a snapshot)
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        // Obtain array of documents from snapshot
+        const docs = snapshot.docs;
+        // Map the array of documents to an array of PetWithId objects
+        const studentsList = docs.map((doc) => ({ ...doc.data(), id: doc.id }) as Course);
+        // Update the pets state variable with the PetWithId[] array
+        setStudents(studentsList);
+      },
+      (error) => {
+        console.log(error.message);
+        setStudents("error");
+      },
+    );
+  },)
+}
+
 export default function Dashboard() {
   const { user } = useAuthContext();
 
@@ -92,8 +134,8 @@ export default function Dashboard() {
 
   // example class array with one class and one club
   let courses: Course[]= [
-    { id: "0", name: "CS161", subname: "Operating Systems", day: "M/W", startTime: "2:15 PM", endTime: "3:30 PM", location: "SEC", instructor: "Eddie Kohler"},
-    { id: "1", name: "T4SG", day: "M/T/W/Th/F", startTime: "12:00 PM", endTime: "2:00 PM", description: "This is the T4SG Wintersession 2024."}
+    { id: "0", name: "CS161", subname: "Operating Systems", day: "M/W", startTime: "2:15 PM", endTime: "3:30 PM", location: "SEC", instructor: "Eddie Kohler", students: addStudents},
+    { id: "1", name: "T4SG", day: "M/T/W/Th/F", startTime: "12:00 PM", endTime: "2:00 PM", description: "This is the T4SG Wintersession 2024.", students: addStudents}
   ]
 
   // to lessen the brute force-ness

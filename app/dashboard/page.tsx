@@ -21,19 +21,22 @@ interface UserProfileProps {
 // this is from the calendar file! not quite sure how to use it here
 import CourseBlock from "./calendar";
 import type { Course } from "@/lib/firebase/schema";
+import type { Profile } from "@/lib/firebase/schema";
+import { db } from "@/lib/firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 // import { Calendar } from "./calendar";
 
 import "./styles/style.css";
 
 function getGridColumn(day) {
-    const mapping = { Mon: 3, Tue: 4, Wed: 5, Thu: 6, Fri: 7, Sat: 8, Sun: 9 };
-    return mapping[day] || null;
+    const mapping = { Mon: 3, Tue: 4, Wed: 5, Thu: 6, Fri: 7, Sat: 8, Sun: 9 };
+    return mapping[day] || null;
   }
   
   function getGridRow(time) {
-    const [hour, minute] = time.split(":");
-    const row = parseInt(hour) * 2 + (minute === "00" ? 1 : 2);
-    return row; // We're assuming grid starts at 1:00 AM and each hour is divided into two rows.
+    const [hour, minute] = time.split(":");
+    const row = parseInt(hour) * 2 + (minute === "00" ? 1 : 2);
+    return row; // We're assuming grid starts at 1:00 AM and each hour is divided into two rows.
   }
 
 export default function Dashboard() {
@@ -62,6 +65,14 @@ export default function Dashboard() {
 
   function handleSubmit() {
     alert(`The new course added is ${course.eventName}: ${course.eventSubName}, which is on ${course.day} from ${course.startTime}-${course.endTime} at ${course.location}. The course is taught by ${course.instructor} and the the course description is:\n${course.description}`);
+    // TODO: Add the new course to the firebase.
+    const collectionRef = collection(db, "courses");
+    // Specify the fields of the document to be added
+    const fields = course;
+
+    // Add to firebase
+    void addDoc(collectionRef, fields);
+
     setOpen(false);
   }
 
@@ -73,8 +84,8 @@ export default function Dashboard() {
 
   // to lessen the brute force-ness
   const hours = [];
-  for (let i = 0; i < 24; i++) {
-    hours.push(i);
+  for (let i = 0; i < 24; i++) {
+    hours.push(i);
   }
 
   return (
@@ -126,6 +137,8 @@ export default function Dashboard() {
         </DialogContent>
       </Dialog>
     </div>
+    
+    {/* TODO: ADD ALL CURRENT COURSES */}
     <div>
         This is a Course card.
     </div>
@@ -139,30 +152,30 @@ export default function Dashboard() {
         <div className="day-header">Fri</div>
         <div className="day-header">Sat</div>
         <div className="day-header">Sun</div>
-      </div>
-      <div className="calendar-grid">
+      </div>
+      <div className="calendar-grid">
         {/* Time slots */}
-        {hours.map((hour) => (
-          <div key={hour} className="time-slot">
-            {hour}:00
-          </div>
-        ))}
-        {/* Course Blocks */}
-        {courses.map((course) =>
-          course.day.split("/").map((day) => (
-            <div
-              key={`${course.id}-${day}`}
-              className="course-block"
-              style={{
-                gridColumn: getGridColumn(day),
-                gridRowStart: getGridRow(course.startTime),
-                gridRowEnd: getGridRow(course.endTime),
-              }}>
-              {course.name}
-            </div>
-          )),
-        )}
-      </div>
+        {hours.map((hour) => (
+          <div key={hour} className="time-slot">
+            {hour}:00
+          </div>
+        ))}
+        {/* Course Blocks */}
+        {courses.map((course) =>
+          course.day.split("/").map((day) => (
+            <div
+              key={`${course.id}-${day}`}
+              className="course-block"
+              style={{
+                gridColumn: getGridColumn(day),
+                gridRowStart: getGridRow(course.startTime),
+                gridRowEnd: getGridRow(course.endTime),
+              }}>
+              {course.name}
+            </div>
+          )),
+        )}
+      </div>
     </div>
   </>
   );

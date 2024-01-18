@@ -31,18 +31,9 @@ export function CourseBlock (course: Course) {
 
 
 
-
-
-import React from 'react';
 import { GetStaticProps } from 'next';
 
-type Course = {
-  id: number;
-  name: string;
-  instructor: string;
-  time: string;
-  location: string;
-};
+
 
 type CourseListProps = {
   courses: Course[];

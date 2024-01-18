@@ -11,19 +11,8 @@ import {
   Button,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
-
-interface UserProfileProps {
-  username: string;
-  email?: string;  // Optional prop
-  joinDate: string;
-}
-
 import CourseBlock from "./calendar";
 import type { Course } from "@/lib/firebase/schema";
-
-import { db } from "@/lib/firebase/firestore";
-import { addDoc, collection, query, onSnapshot } from "firebase/firestore";
-
 import "./styles/style.css";
 
 type DayOfWeek = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
@@ -60,47 +49,6 @@ function getGridRow(time: string): number {
   const rowOffset = 1;
   const row = hour * 2 + (minute === "00" ? 1 : 2) - rowOffset;
   return row;
-}
-
-export function addNewStudent(students: Course) {
- // Specify the collection to which to add the document
- // If nested, specify path e.g. “people/matthew/pets”
- const collectionRef = collection(db, "students");
-
- // Specify the fields of the document to be added
- const fields = students;
-
- /*
- addDoc() adds a document with the specified fields
- to the specified collection. addDoc() also returns a
- reference to the added document after it completes,
- but we don't need it, so we void the return.
- */
- void addDoc(collectionRef, fields);
-}
-
-export function addStudents() {
-  const [pets, setStudents] = useState<"loading" | "error" | Course[]>("loading");
-   useEffect(() => {
-    // What we're asking for
-    const q = query(collection(db, "pets"));
-    // Start listening to Firestore (set up a snapshot)
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        // Obtain array of documents from snapshot
-        const docs = snapshot.docs;
-        // Map the array of documents to an array of PetWithId objects
-        const studentsList = docs.map((doc) => ({ ...doc.data(), id: doc.id }) as Course);
-        // Update the pets state variable with the PetWithId[] array
-        setStudents(studentsList);
-      },
-      (error) => {
-        console.log(error.message);
-        setStudents("error");
-      },
-    );
-  },)
 }
 
 export default function Dashboard() {

@@ -14,11 +14,10 @@ import React, { useState, useEffect } from "react";
 
 interface UserProfileProps {
   username: string;
-  email?: string;  // Optional prop
+  email?: string;
   joinDate: string;
 }
 
-// this is from the calendar file! not quite sure how to use it here
 import CourseBlock from "./calendar";
 import type { Course } from "@/lib/firebase/schema";
 import type { Profile } from "@/lib/firebase/schema";
@@ -27,6 +26,7 @@ import { addDoc, collection, query, onSnapshot } from "firebase/firestore";
 // import { Calendar } from "./calendar";
 
 import "./styles/style.css";
+
 
 function getGridColumn(day) {
     const mapping = { Mon: 3, Tue: 4, Wed: 5, Thu: 6, Fri: 7, Sat: 8, Sun: 9 };
@@ -39,6 +39,18 @@ function getGridColumn(day) {
     return row; // We're assuming grid starts at 1:00 AM and each hour is divided into two rows.
   }
 
+  if (period === "PM" && hour < 12) {
+    hour += 12;
+  } else if (period === "AM" && hour === 12) {
+    hour = 0;
+  }
+
+  const rowOffset = 1;
+  const row = hour * 2 + (minute === "00" ? 1 : 2) - rowOffset;
+  return row;
+}
+
+  
 export default function Dashboard() {
   const { user } = useAuthContext();
 
@@ -106,9 +118,8 @@ export default function Dashboard() {
 
     // Add to firebase
     void addDoc(collectionRef, fields);
-
     setOpen(false);
-  }
+  };
 
   
 
@@ -123,6 +134,7 @@ export default function Dashboard() {
   for (let i = 0; i < 24; i++) {
     hours.push(i);
   }
+
 
   return (
     <>

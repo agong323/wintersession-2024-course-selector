@@ -14,7 +14,7 @@ import React, { useState } from "react";
 
 interface UserProfileProps {
   username: string;
-  email?: string;  // Optional prop
+  email?: string;
   joinDate: string;
 }
 
@@ -85,10 +85,11 @@ export default function Dashboard() {
     return <TypographyP>Loading...</TypographyP>;
   }
 
-  function handleSubmit() {
-    alert(`The new course added is ${course.eventName}: ${course.eventSubName}, which is on ${course.day} from ${course.startTime}-${course.endTime} at ${course.location}. The course is taught by ${course.instructor} and the the course description is:\n${course.description}`);
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    alert(`The new course added is ${course.eventName}: ${course.eventSubName}, which is on ${course.day} from ${course.startTime}-${course.endTime} at ${course.location}. The course is taught by ${course.instructor} and the course description is:\n${course.description}`);
     setOpen(false);
-  }
+  };
 
   // example class array with one class and one club
   let courses: Course[]= [
@@ -96,11 +97,8 @@ export default function Dashboard() {
     { id: "1", name: "T4SG", day: "M/T/W/Th/F", startTime: "12:00 PM", endTime: "2:00 PM", description: "This is the T4SG Wintersession 2024."}
   ]
 
-  // to lessen the brute force-ness
-  const hours = [];
-  for (let i = 0; i < 24; i++) {
-    hours.push(i);
-  }
+  // Hours array for time slots
+  const hours = Array.from({ length: 24 }, (_, i) => i);
 
   return (
     <>

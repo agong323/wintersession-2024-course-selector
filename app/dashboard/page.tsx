@@ -13,17 +13,21 @@ import React, { useState, useEffect } from "react";
 import CourseBlock from "./calendar";
 import type { Course, Profile } from "@/lib/firebase/schema";
 import { db } from "@/lib/firebase/firestore";
-import { addDoc, collection, query, onSnapshot } from "firebase/firestore";
+import { addDoc, collection, query, onSnapshot, where } from "firebase/firestore";
 import "./styles/style.css";
 
 type DayOfWeek = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
 
-function getGridColumn(day: string) {
-  const mapping: { [key in DayOfWeek]: number } = { Mon: 3, Tue: 4, Wed: 5, Thu: 6, Fri: 7, Sat: 8, Sun: 9 };
-  if (day in mapping) {
-      return mapping[day as DayOfWeek];
+  function getGridColumn(days: string): number[] {
+    const mapping: { [key: string]: number} = { 'M': 2, 'T': 3, 'W': 4, 'Th': 5 , 'F': 6, 'Sat': 7, 'Sun': 8};
+    return days.split("/").map(day => {
+      const column = mapping[day];
+      if (column == undefined) {
+        throw new Error(`Invalid day: ${ day }`);
+      }
+      return column;
+    })
   }
-}
 
 function getGridRow(time: string): number {
   const [hourString, minutePart] = time.split(":");
@@ -32,9 +36,9 @@ function getGridRow(time: string): number {
   }
 
   const [minute, period] = minutePart.split(" ");
-  if (!minute || !period) {
-    throw new Error("Invalid time format: Missing minutes or period part");
-  }
+  //if (minute || !period) {
+  //  throw new Error("Invalid time format: Missing minutes or period part");
+  //}
 
   let hour = parseInt(hourString, 10);
   if (isNaN(hour)) {
@@ -47,13 +51,22 @@ function getGridRow(time: string): number {
     hour = 0;
   }
 
-  const rowOffset = 1;
-  const row = hour * 2 + (minute === "00" ? 1 : 2) - rowOffset;
+  const rowOffset = 2;
+  const row = hour + rowOffset;
   return row;
 }
 
 export default function Dashboard() {
-  const { user } = useAuthContext();
+  const { user, profile } = useAuthContext();
+
+  if (!user) {
+    // this is a protected route - only users who are signed in can view this route
+    redirect("/");
+  }
+
+  if (user === "loading") {
+    return <TypographyP>Loading...</TypographyP>;
+  }
 
   const [course, setCourse] = useState<Course>({
     id: "",
@@ -93,9 +106,10 @@ export default function Dashboard() {
     return unsubscribe;
   }, []);
 
+  const [userCourses, setUserCourses] = useState<"loading" | "error" | Course[]>("loading");
   useEffect(() => {
     // What we're asking for
-    const q = query(collection(db, "courses"), where("students", "array-contains", userId));
+    const q = query(collection(db, "courses"), where("students", "array-contains", user.uid));
     // Start listening to Firestore (set up a snapshot)
     const unsubscribe = onSnapshot(
       q,
@@ -105,43 +119,34 @@ export default function Dashboard() {
         // Map the array of documents to an array of PetWithId objects
         const courseWithId = docs.map((doc) => ({ ...doc.data(), id: doc.id }) as Course);
         // Update the pets state variable with the PetWithId[] array
-        setCourses(courseWithId);
+        setUserCourses(courseWithId);
       },
       (error) => {
         console.log(error.message);
         setCourses("error");
       },
-   );
+  );
     // Stop listening when the component is unmounted
     return unsubscribe;
   }, []);
   
   let coursesSection;
-  if (courses === "loading") {
+  if (courses === "loading" || profile === "loading") {
     coursesSection = <p>Loading courses...</p>;
-  } else if (courses === "error") {
+  } else if (courses === "error" || profile === null) {
     coursesSection = <p>There was an error fetching courses</p>;
   } else {
-    coursesSection = courses.map((crse) => <p key={crse.id}>{crse.name}</p>);
-
+    coursesSection = courses.map((crse) => <CourseBlock key={crse.id} course={crse} userid={profile}/>);
   }
 
-  if (!user) {
-    // this is a protected route - only users who are signed in can view this route
-    redirect("/");
-  }
-
-  if (user === "loading") {
-    return <TypographyP>Loading...</TypographyP>;
-  }
-
+  
+  
   function handleSubmit() {
     alert(`The new course added is ${course.name}: ${course.subname}, which is on ${course.day} from ${course.startTime}-${course.endTime} at ${course.location}. The course is taught by ${course.instructor} and the the course description is:\n${course.description}`);
     // TODO: Add the new course to the firebase.
     const collectionRef = collection(db, "courses");
     // Specify the fields of the document to be added
     const fields = course;
-
 
     // Add to firebase
     void addDoc(collectionRef, fields);
@@ -155,55 +160,56 @@ export default function Dashboard() {
   return (
     <>
       <div className="flex flex-col items-center">
-      <Button onClick={() => setOpen(true)} variant="outlined">
-        Add Course
-      </Button>
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogTitle>Add Course</DialogTitle>
-        <DialogContent>
-          <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
-            <TextField
-              label="Course Name"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, name: event.target.value })}
-            />
-            <TextField
-              label="Course Sub-name"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, subname: event.target.value })}
-            />
-            <TextField
-              label="Course Day(s)"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, day: event.target.value })}
-            />
-            <TextField
-              label="Start Time"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, startTime: event.target.value })}
-            />
-            <TextField
-              label="End Time"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, endTime: event.target.value })}
-            />
-            <TextField
-              label="Instructor"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, instructor: event.target.value })}
-            />
-            <TextField
-              label="Location"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, location: event.target.value })}
-            />
-            <TextField
-              label="Course Description"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, description: event.target.value })}
-            />
-            <Button type="submit" variant="outlined">
-              Add
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
+        <Button onClick={() => setOpen(true)} variant="outlined">
+          Add Course
+        </Button>
+          <Dialog open={open} onClose={() => setOpen(false)}>
+            <DialogTitle>Add Course</DialogTitle>
+            <DialogContent>
+              <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
+                <TextField
+                  label="Course Name"
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, name: event.target.value })}
+                />
+                <TextField
+                  label="Course Sub-name"
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, subname: event.target.value })}
+                />
+                <TextField
+                  label="Course Day(s)"
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, day: event.target.value })}
+                />
+                <TextField
+                  label="Start Time"
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, startTime: event.target.value })}
+                />
+                <TextField
+                  label="End Time"
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, endTime: event.target.value })}
+                />
+                <TextField
+                  label="Instructor"
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, instructor: event.target.value })}
+                />
+                <TextField
+                  label="Location"
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, location: event.target.value })}
+                />
+                <TextField
+                  label="Course Description"
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, description: event.target.value })}
+                />
+                <Button type="submit" variant="outlined">
+                  Add
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
     </div>
-    <div>
+    <div style={{ display: 'flex', gap: '16px' }}>
       {coursesSection}
     </div>
+
     <div className="dashboard-container">
       <div className="days-header">
         {/* Headers for days */}
@@ -215,29 +221,32 @@ export default function Dashboard() {
         <div className="day-header">Sat</div>
         <div className="day-header">Sun</div>
       </div>
-      <div className="calendar-grid">
+      <div className="calendar-grid" >
         {/* Time slots */}
         {hours.map((hour) => (
           <div key={hour} className="time-slot">
             {hour}:00
           </div>
         ))}
-        {/* Course Blocks
-        {courses.map((course) =>
-          course.day.split("/").map((day) => (
-            <div
-              key={`${course.id}-${day}`}
-              className="course-block"
-              style={{
-                gridColumn: getGridColumn(day),
-                gridRowStart: getGridRow(course.startTime),
-                gridRowEnd: getGridRow(course.endTime),
-              }}>
-              {course.name}
-            </div>
-          )),
-        )}*/}
-      </div>
+        { /* checks if the input is Course[] */ } 
+        {Array.isArray(courses) ? (
+          courses.map((course: Course) => 
+            getGridColumn(course.day).map((column, index) => (
+              <div
+                key={`${course.id}-${index}`}
+                className="course-block"
+                style={{
+                  gridColumn: column,
+                  gridRow: `${getGridRow(course.startTime)} / span ${getGridRow(course.endTime) - getGridRow(course.startTime) }`,
+                }}>
+                  {course.name}
+              </div>
+            ),
+          ))) : (
+            // if it isn't an array (is error or loading), we don't have anything to show
+            <p>There's an error. Please try again!</p>
+          )}
+        </div>
     </div>
   </>
   );

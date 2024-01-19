@@ -3,21 +3,42 @@
 // for showing calendar
 import React from "react";
 import "./styles/style.css";
-import type { Course } from "@/lib/firebase/schema";
+import type { Course, Profile } from "@/lib/firebase/schema";
+import { Button } from "@/components/ui/button";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase/firestore";
 
-// component for CourseBlock
-function CourseBlock ({ name, subname, day, startTime, endTime, location, instructor, description }: Course) {
-    return (
-        <div>
-            <h2>{name}{subname && <h2>{subname}</h2>}</h2>
-            <p><strong>Days:</strong> {day}</p>
-            <p><strong>Time:</strong> {startTime} - {endTime}</p>
-            {location && <p><strong>Location:</strong> {location}</p>}
-            {instructor && <p><strong>Instructor:</strong> {instructor}</p>}
-            {description && <p><strong>Description:</strong> {description}</p>}
-        </div>
-    );
-}
-export default CourseBlock;
+interface CourseBlockProps {
+    key: string;
+    course: Course;
+    userid: Profile;
+  }
+  
 
+  // component for CourseBlock
+  function CourseBlock ({key, course, userid}: CourseBlockProps) {
+        async function addToCourses() {
+            let newStudents = course.students;
+            alert(`new students are ${ newStudents }`);
+            if(!newStudents.includes(userid.user_id)){
+              newStudents.push(userid.user_id);
+            }
+            await setDoc(doc(db, "courses", course.id), {
+              ...course, students:newStudents
+            });
+        }
 
+      return (
+        <div className="min-w-72 m-4 w-72 flex-none rounded border-2 p-3 shadow">
+            <h2>{course.name}{course.subname && <h2>{course.subname}</h2>}</h2>
+            <p><strong>Days:</strong> {course.day}</p>
+            <p><strong>Time:</strong> {course.startTime} - {course.endTime}</p>
+            {location && <p><strong>Location:</strong> {course.location}</p>}
+            {course.instructor && <p><strong>Instructor:</strong> {course.instructor}</p>}
+            {course.description && <p><strong>Description:</strong> {course.description}</p>}
+            <Button onClick={addToCourses}>Add</Button>
+      </div>
+
+      );
+  }
+  export default CourseBlock;

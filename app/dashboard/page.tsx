@@ -18,9 +18,11 @@ interface UserProfileProps {
   joinDate: string;
 }
 
+import useUserCourses from './useUserCourses';
 import CourseBlock from "./calendar";
 import type { Course } from "@/lib/firebase/schema";
 // import { Calendar } from "./calendar";
+import "./styles/style.css";
 
 import "./styles/style.css";
 
@@ -34,12 +36,12 @@ function getGridColumn(day: string) {
 }
 
 function getGridRow(time: string): number {
-  let [hourString, minutePart] = time.split(":");
+  const [hourString, minutePart] = time.split(":");
   if (!hourString || !minutePart) {
     throw new Error("Invalid time format: Expected format HH:MM AM/PM");
   }
 
-  let [minute, period] = minutePart.split(" ");
+  const [minute, period] = minutePart.split(" ");
   if (!minute || !period) {
     throw new Error("Invalid time format: Missing minutes or period part");
   }
@@ -60,7 +62,7 @@ function getGridRow(time: string): number {
   return row;
 }
 
-  
+
 export default function Dashboard() {
   const { user } = useAuthContext();
 
@@ -92,7 +94,7 @@ export default function Dashboard() {
   };
 
   // example class array with one class and one club
-  let courses: Course[]= [
+  const courses: Course[]= [
     { id: "0", name: "CS161", subname: "Operating Systems", day: "M/W", startTime: "2:15 PM", endTime: "3:30 PM", location: "SEC", instructor: "Eddie Kohler"},
     { id: "1", name: "T4SG", day: "M/T/W/Th/F", startTime: "12:00 PM", endTime: "2:00 PM", description: "This is the T4SG Wintersession 2024."}
   ]
@@ -171,18 +173,18 @@ export default function Dashboard() {
           </div>
         ))}
         {/* Course Blocks */}
-        {courses.map((course) =>
-          course.day.split("/").map((day) => (
-            <div
-              key={`${course.id}-${day}`}
-              className="course-block"
-              style={{
-                gridColumn: getGridColumn(day),
-                gridRowStart: getGridRow(course.startTime),
-                gridRowEnd: getGridRow(course.endTime),
-              }}>
-              {course.name}
-            </div>
+        {courses.map(course =>
+            course.day.split("/").map(day => (
+              <div
+                key={`${course.id}-${day}`}
+                className="course-block"
+                style={{
+                  gridColumn: getGridColumn(day),
+                  gridRowStart: getGridRow(course.startTime),
+                  gridRowEnd: getGridRow(course.endTime),
+                }}>
+                {course.name}
+              </div>
           )),
         )}
       </div>

@@ -96,6 +96,30 @@ export default function Dashboard() {
     // Stop listening when the component is unmounted
     return unsubscribe;
   }, []);
+
+  useEffect(() => {
+    // What we're asking for
+    const q = query(collection(db, "courses"), where("students", "array-contains", userId));
+    // Start listening to Firestore (set up a snapshot)
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        // Obtain array of documents from snapshot
+        const docs = snapshot.docs;
+        // Map the array of documents to an array of PetWithId objects
+        const courseWithId = docs.map((doc) => ({ ...doc.data(), id: doc.id }) as Course);
+        // Update the pets state variable with the PetWithId[] array
+        setCourses(courseWithId);
+      },
+      (error) => {
+        console.log(error.message);
+        setCourses("error");
+      },
+   );
+    // Stop listening when the component is unmounted
+    return unsubscribe;
+  }, []);
+  
   let coursesSection;
   if (courses === "loading") {
     coursesSection = <p>Loading courses...</p>;

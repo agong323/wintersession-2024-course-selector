@@ -1,7 +1,6 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "./firebase"; // Import your firebase configuration
-
+import { db } from "@/lib/firebase/schema"; // Import your firebase configuration
 const useUserCourses = (userId) => {
   const [courses, setCourses] = useState([]);
 

@@ -1,9 +1,8 @@
 "use client";
-import { TypographyH2, TypographyP } from "@/components/ui/typography";
+import { TypographyP } from "@/components/ui/typography";
 import { redirect } from "next/navigation";
 import { useAuthContext } from "../(context)/auth-context";
 import {
-  Box,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -12,7 +11,9 @@ import {
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import CourseBlock from "./calendar";
-import type { Course } from "@/lib/firebase/schema";
+import type { Course, Profile } from "@/lib/firebase/schema";
+import { db } from "@/lib/firebase/firestore";
+import { addDoc, collection, query, onSnapshot } from "firebase/firestore";
 import "./styles/style.css";
 
 type DayOfWeek = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
@@ -25,12 +26,12 @@ function getGridColumn(day: string) {
 }
 
 function getGridRow(time: string): number {
-  let [hourString, minutePart] = time.split(":");
+  const [hourString, minutePart] = time.split(":");
   if (!hourString || !minutePart) {
     throw new Error("Invalid time format: Expected format HH:MM AM/PM");
   }
 
-  let [minute, period] = minutePart.split(" ");
+  const [minute, period] = minutePart.split(" ");
   if (!minute || !period) {
     throw new Error("Invalid time format: Missing minutes or period part");
   }
@@ -54,17 +55,52 @@ function getGridRow(time: string): number {
 export default function Dashboard() {
   const { user } = useAuthContext();
 
-  const [course, setCourse] = useState({
-    eventName: "",
-    eventSubName: "",
+  const [course, setCourse] = useState<Course>({
+    id: "",
+    name: "",
+    subname: "",
     day: "",
     startTime: "",
     endTime: "",
     location: "",
     instructor: "",
-    description: ""
+    description: "",
+    students: [],
   });
   const [open, setOpen] = useState<boolean>(false);
+
+  const [courses, setCourses] = useState<"loading" | "error" | Course[]>("loading");
+  useEffect(() => {
+    // What we're asking for
+    const q = query(collection(db, "courses"));
+    // Start listening to Firestore (set up a snapshot)
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        // Obtain array of documents from snapshot
+        const docs = snapshot.docs;
+        // Map the array of documents to an array of PetWithId objects
+        const courseWithId = docs.map((doc) => ({ ...doc.data(), id: doc.id }) as Course);
+        // Update the pets state variable with the PetWithId[] array
+        setCourses(courseWithId);
+      },
+      (error) => {
+        console.log(error.message);
+        setCourses("error");
+      },
+   );
+    // Stop listening when the component is unmounted
+    return unsubscribe;
+  }, []);
+  let coursesSection;
+  if (courses === "loading") {
+    coursesSection = <p>Loading courses...</p>;
+  } else if (courses === "error") {
+    coursesSection = <p>There was an error fetching courses</p>;
+  } else {
+    coursesSection = courses.map((crse) => <p key={crse.id}>{crse.name}</p>);
+
+  }
 
   if (!user) {
     // this is a protected route - only users who are signed in can view this route
@@ -76,21 +112,21 @@ export default function Dashboard() {
   }
 
   function handleSubmit() {
-    alert(`The new course added is ${course.eventName}: ${course.eventSubName}, which is on ${course.day} from ${course.startTime}-${course.endTime} at ${course.location}. The course is taught by ${course.instructor} and the the course description is:\n${course.description}`);
+    alert(`The new course added is ${course.name}: ${course.subname}, which is on ${course.day} from ${course.startTime}-${course.endTime} at ${course.location}. The course is taught by ${course.instructor} and the the course description is:\n${course.description}`);
+    // TODO: Add the new course to the firebase.
+    const collectionRef = collection(db, "courses");
+    // Specify the fields of the document to be added
+    const fields = course;
+
+
+    // Add to firebase
+    void addDoc(collectionRef, fields);
+
     setOpen(false);
-  }
+  };
 
-  // example class array with one class and one club
-  let courses: Course[]= [
-    { id: "0", name: "CS161", subname: "Operating Systems", day: "M/W", startTime: "2:15 PM", endTime: "3:30 PM", location: "SEC", instructor: "Eddie Kohler", students: addStudents},
-    { id: "1", name: "T4SG", day: "M/T/W/Th/F", startTime: "12:00 PM", endTime: "2:00 PM", description: "This is the T4SG Wintersession 2024.", students: addStudents}
-  ]
-
-  // to lessen the brute force-ness
-  const hours = [];
-  for (let i = 0; i < 24; i++) {
-    hours.push(i);
-  }
+  // Hours array for time slots
+  const hours = Array.from({ length: 24 }, (_, i) => i);
 
   return (
     <>
@@ -104,11 +140,11 @@ export default function Dashboard() {
           <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
             <TextField
               label="Course Name"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, eventName: event.target.value })}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, name: event.target.value })}
             />
             <TextField
               label="Course Sub-name"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, eventSubName: event.target.value })}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCourse({ ...course, subname: event.target.value })}
             />
             <TextField
               label="Course Day(s)"
@@ -142,7 +178,7 @@ export default function Dashboard() {
       </Dialog>
     </div>
     <div>
-        This is a Course card.
+      {coursesSection}
     </div>
     <div className="dashboard-container">
       <div className="days-header">
@@ -162,7 +198,7 @@ export default function Dashboard() {
             {hour}:00
           </div>
         ))}
-        {/* Course Blocks */}
+        {/* Course Blocks
         {courses.map((course) =>
           course.day.split("/").map((day) => (
             <div
@@ -176,7 +212,7 @@ export default function Dashboard() {
               {course.name}
             </div>
           )),
-        )}
+        )}*/}
       </div>
     </div>
   </>

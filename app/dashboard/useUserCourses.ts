@@ -9,7 +9,6 @@ const useUserCourses = (userId: Profile) => {
   useEffect(() => {
     const fetchCourses = async () => {
       if (!userId) return;
-
       const q = query(
         collection(db, 'courses'), 
         where('students', 'array-contains', userId)

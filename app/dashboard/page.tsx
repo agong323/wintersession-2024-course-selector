@@ -9,14 +9,11 @@ import {
   TextField,
   Button,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CourseBlock from "./calendar";
 import type { Course, Profile } from "@/lib/firebase/schema";
 import { db } from "@/lib/firebase/firestore";
 import { addDoc, collection, query, onSnapshot } from "firebase/firestore";
-import { useEffect } from "react";
-// import { Calendar } from "./calendar";
-
 import "./styles/style.css";
 
 type DayOfWeek = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
@@ -54,7 +51,6 @@ function getGridRow(time: string): number {
   const row = hour * 2 + (minute === "00" ? 1 : 2) - rowOffset;
   return row;
 }
-
 
 export default function Dashboard() {
   const { user } = useAuthContext();
@@ -121,6 +117,7 @@ export default function Dashboard() {
     const collectionRef = collection(db, "courses");
     // Specify the fields of the document to be added
     const fields = course;
+
 
     // Add to firebase
     void addDoc(collectionRef, fields);
